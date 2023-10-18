@@ -32,7 +32,7 @@ async function run() {
     const InstructorsCollection = client.db("WebCourseDB").collection("Instructors");
 
     // get all the courses
-    app.get("/courses", async(req, res)=>{
+    app.get("/courses", async (req, res)=>{
       const query = {}
       const result = await CoursesCollection.find(query).toArray();
       res.send(result);
