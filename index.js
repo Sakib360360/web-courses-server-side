@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require('express');
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const stripe = require("stripe")(process.env.PAYMENT_SECRET_KEY);
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = 3000; // or any port you prefer
@@ -247,7 +248,22 @@ async function run() {
       res.send(result);
     });
 
-
+    // payment related api 
+        //payment intent api
+        app.post("/create-payment-intent", async (req, res) => {
+          const { price } = req.body;
+    
+          const amount = parseInt(price * 100);
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: "usd",
+            payment_method_types: ["card"],
+          });
+          res.send({
+            clientSecret: paymentIntent.client_secret,
+          });
+        });
+//payment related api
     // save cart information into database
     app.post("/cart", verifyJWT, verifyStudent, async(req, res)=>{
       const cart = req.body;
