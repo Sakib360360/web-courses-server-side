@@ -51,6 +51,7 @@ async function run() {
     const CoursesCollection = client.db("WebCourseDB").collection("Courses");
     const InstructorsCollection = client.db("WebCourseDB").collection("Instructors");
     const UsersCollection = client.db("WebCourseDB").collection("Users");
+    const CartsCollection = client.db("WebCourseDB").collection("Carts");
 
 
     // verify whether the user is a admin or not
@@ -131,6 +132,7 @@ async function run() {
     app.patch("/pending-courses/:id", verifyJWT, verifyAdmin, async (req, res)=>{
       const id = req.params.id;
       const status = req.query.status;
+
       const query = {_id: new ObjectId(id)}
       
       const updateDoc = {
@@ -242,6 +244,39 @@ async function run() {
       };
 
       const result = await UsersCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+
+
+    // save cart information into database
+    app.post("/cart", verifyJWT, verifyStudent, async(req, res)=>{
+      const cart = req.body;
+      const result = await CartsCollection.insertOne(cart);
+      res.send(result);
+    });
+
+
+    // get all the carts data from database
+    app.get("/cart", verifyJWT, verifyStudent, async (req, res)=>{
+      const userEmail = req.query.email;
+      const decodedEmail = req.decoded.email;
+
+      if(userEmail !== decodedEmail){
+        return res.status(403).send({error: true, message: "Forbidden! access denied"})
+      }
+
+      const query = {student_email: userEmail};
+      const result = await CartsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    
+    // delete the user's cart from database
+    app.delete("/cart/:id", verifyJWT, verifyStudent, async (req, res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+
+      const result = await CartsCollection.deleteOne(query);
       res.send(result);
     });
 
