@@ -102,7 +102,7 @@ async function run() {
     // get all the courses
     app.get("/courses", async (req, res)=>{
       const limit = parseInt(req.query.limit);
-      const query = {}
+      const query = {status: "approved"}
       const options = {
         sort: {"students": -1}
       }
@@ -116,6 +116,31 @@ async function run() {
       const course = req.body;
       const result = await CoursesCollection.insertOne(course);
       res.send(result);
+    });
+
+
+    // get all the pending courses
+    app.get("/pending-courses", verifyJWT, verifyAdmin, async (req, res)=>{
+      const query = {status: "pending"};
+      const result = await CoursesCollection.find(query).toArray();
+      res.send(result);
+    });
+
+
+    // change the status of the pending courses
+    app.patch("/pending-courses/:id", verifyJWT, verifyAdmin, async (req, res)=>{
+      const id = req.params.id;
+      const status = req.query.status;
+      const query = {_id: new ObjectId(id)}
+      
+      const updateDoc = {
+        $set: {
+          status: status
+        }
+      }
+
+      const result = await CoursesCollection.updateOne(query, updateDoc);
+      res.send(result)
     });
 
 
@@ -133,7 +158,29 @@ async function run() {
       const query = {_id: new ObjectId(id)};
       const result = await CoursesCollection.findOne(query);
       res.send(result);
-    })
+    });
+
+
+    // update a particular course
+    app.patch("/my-courses/:id", verifyJWT, verifyInstructor, async (req, res)=>{
+        const id = req.params.id;
+        const updatedCourse = req.body;
+
+        const query = {_id: new ObjectId(id)};
+
+        const updateDoc = {
+          $set: {
+            price: updatedCourse.price,
+            picture: updatedCourse.picture,
+            seats: updatedCourse.seats,
+            course_description: updatedCourse.course_description,
+            title: updatedCourse.title
+          }
+        };
+
+        const result = await CoursesCollection.updateOne(query, updateDoc);
+        res.send(result);
+    });
 
 
     // get all the instructors
@@ -178,6 +225,23 @@ async function run() {
       const query = {email: email};
       const user = await UsersCollection.findOne(query);
       const result = {role: user?.role};
+      res.send(result);
+    });
+
+
+    // update user's role
+    app.patch("/users/:id", verifyJWT, verifyAdmin, async (req, res)=>{
+      const id = req.params.id;
+      const role = req.query.role;
+      const query = {_id: new ObjectId(id)};
+
+      const updateDoc = {
+        $set: {
+          role: role
+        }
+      };
+
+      const result = await UsersCollection.updateOne(query, updateDoc);
       res.send(result);
     });
 
