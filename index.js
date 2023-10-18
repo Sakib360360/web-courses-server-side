@@ -46,10 +46,12 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+
     // Database collations
     const CoursesCollection = client.db("WebCourseDB").collection("Courses");
     const InstructorsCollection = client.db("WebCourseDB").collection("Instructors");
     const UsersCollection = client.db("WebCourseDB").collection("Users");
+
 
     // verify whether the user is a admin or not
     const verifyAdmin = async (req, res, next)=>{
@@ -63,6 +65,7 @@ async function run() {
       next();
     }
 
+
     // verify whether the user is a instructor or not
     const verifyInstructor = async (req, res, next)=>{
       const email = req.decoded.email;
@@ -75,6 +78,8 @@ async function run() {
       next();
     }
 
+
+    // verify whether the user is a student or not
     const verifyStudent = async (req, res, next)=>{
       const email = req.decoded.email;
       const query = {email: email};
@@ -85,6 +90,7 @@ async function run() {
       }
       next();
     }
+
 
     // jwt post API
     app.post("/jwt", (req, res)=>{
@@ -100,12 +106,59 @@ async function run() {
       res.send(result);
     });
 
+
+    // save a course into database
+    app.post("/courses", verifyJWT, verifyInstructor, async (req, res)=>{
+      const course = req.body;
+      const result = await CoursesCollection.insertOne(course);
+      res.send(result);
+    });
+
+
     // get all the instructors
     app.get("/instructors", async (req, res)=>{
       const query={};
       const result = await InstructorsCollection.find(query).toArray();
       res.send(result);
-    })
+    });
+
+
+    // save user into the database
+    app.get("/users", async (req, res)=>{
+      const user = req.body;
+      const query = {email: user.email};
+      const userExists = await UsersCollection.findOne(query);
+
+      if(userExists){
+        return res.send({message: "user already exists"});
+      }
+
+      const result = await UsersCollection.insertOne(user);
+      res.send(result);
+    });
+
+
+    // get all the users from database
+    app.get("/users", verifyJWT, verifyAdmin, async (req, res)=>{
+      const result = await UsersCollection.find().toArray();
+      res.send(result);
+    });
+
+
+    // get the users role in the database
+    app.get("/users/role/:email", verifyJWT, async (req, res)=>{
+      const email = req.params.email;
+
+      if(req.decoded.email !== email){
+        res.send({role: null});
+      }
+
+      const query = {email: email};
+      const user = await UsersCollection.findOne(query);
+      const result = {role: user?.role};
+      res.send(result);
+    });
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
