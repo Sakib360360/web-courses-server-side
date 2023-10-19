@@ -293,11 +293,11 @@ async function run() {
       const email = req.query.email;
       const query = { email: email };
     /*   const result = await myClassCollection.find(query).toArray();
-      res.send(result); */
+      res.send(result); eta ki cart collection theke ashbe i mean selected class gula ki cart collection e thakbe tahole ekhane database hobe cart collection*/
       const result = await paymentCollection.find(query).sort({ _id: -1 }).toArray();
       res.send(result);
     })
-
+     
      //enrolled(paid) course api
      app.get("/payments/enrolledCourses", async (req, res) =>{
       const email = req.query.email;
@@ -305,7 +305,10 @@ async function run() {
       const result = await paymentCollection.find(query).toArray();
       res.send(result);
     })
+
 //payment related api
+
+
     // save cart information into database
     app.post("/cart", verifyJWT, verifyStudent, async(req, res)=>{
       const cart = req.body;
