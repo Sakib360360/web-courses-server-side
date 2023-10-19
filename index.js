@@ -230,9 +230,9 @@ async function run() {
     app.get("/users/role/:email", async (req, res) => {
       const email = req.params.email;
 
-      if (req.decoded.email !== email) {
-        res.send({ role: null });
-      }
+      // if (req.decoded.email !== email) {
+      //   res.send({ role: null });
+      // }
 
       const query = { email: email };
       user = await UsersCollection.findOne(query);
@@ -332,11 +332,11 @@ async function run() {
     // TODO: add verifyJWT and verifyStudent
     app.get("/cart", async (req, res) => {
       const userEmail = req.query.email;
-      const decodedEmail = req.decoded.email;
+      // const decodedEmail = req.decoded.email;
 
-      if (userEmail !== decodedEmail) {
-        return res.status(403).send({ error: true, message: "Forbidden! access denied" })
-      }
+      // if (userEmail !== decodedEmail) {
+        // return res.status(403).send({ error: true, message: "Forbidden! access denied" })
+      // }
 
       const query = { student_email: userEmail };
       const result = await CartsCollection.find(query).toArray();
