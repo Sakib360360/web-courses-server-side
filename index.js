@@ -388,7 +388,7 @@ async function run() {
         // return res.status(403).send({ error: true, message: "Forbidden! access denied" })
       // }
 
-      const query = { student_email: userEmail };
+      const query = { email: userEmail };
       const result = await CartsCollection.find(query).toArray();
       res.send(result);
     });
