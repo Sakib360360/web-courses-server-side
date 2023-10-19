@@ -265,7 +265,7 @@ async function run() {
           });
         });
 
-
+// payment and saving payment in database
         app.post("/payments", async (req, res) => {
           const payment = req.body;
           console.log(payment);
