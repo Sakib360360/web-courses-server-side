@@ -101,7 +101,7 @@ async function run() {
       res.send(token);
     });
 
-    // get all the courses
+    // get all the courses approved
     app.get("/courses", async (req, res) => {
       const limit = parseInt(req.query.limit);
       const query = { status: "approved" }
@@ -111,6 +111,12 @@ async function run() {
       const result = await CoursesCollection.find(query, options).limit(limit).toArray();
       res.send(result);
     });
+
+    // all courses 
+    app.get("/allCourses",async(req,res)=>{
+      const result = await CoursesCollection.find().toArray()
+      res.send(result)
+    })
 
 
     // save a course into database
