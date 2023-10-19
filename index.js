@@ -53,6 +53,7 @@ async function run() {
     const InstructorsCollection = client.db("WebCourseDB").collection("Instructors");
     const UsersCollection = client.db("WebCourseDB").collection("Users");
     const CartsCollection = client.db("WebCourseDB").collection("Carts");
+    const paymentCollection = client.db("WebCourseDB").collection("payments");// payment collection needed to create in MongoDB
 
 
     // verify whether the user is a admin or not
@@ -263,6 +264,47 @@ async function run() {
             clientSecret: paymentIntent.client_secret,
           });
         });
+
+
+        app.post("/payments", async (req, res) => {
+          const payment = req.body;
+          console.log(payment);
+          const insertResult = await paymentCollection.insertOne(payment);    
+          const query = { _id: new ObjectId(payment.courseId) };
+          console.log(query);
+          //class and my class different
+          const queryCourse = { courseId: payment.courseId };
+          const deleteResult = await CartsCollection.deleteOne(queryCourse)
+          ;
+         const courseInfo = await CoursesCollection.findOne(query);
+         const newSeat = parseFloat(courseInfo?.availableSeats) - 1;
+         const newStudents = parseFloat(courseInfo?.students) +1;
+         const updateSeat = {
+                       $set:{ availableSeats: newSeat, 
+                              students: newStudents
+                      }               
+         }
+         const updateCourseSeat = await CoursesCollection.updateOne(query, updateSeat);
+          res.send({ insertResult, deleteResult });
+        });
+
+           //payment history api
+    app.get("/payments/history", async (req, res) =>{
+      const email = req.query.email;
+      const query = { email: email };
+    /*   const result = await myClassCollection.find(query).toArray();
+      res.send(result); */
+      const result = await paymentCollection.find(query).sort({ _id: -1 }).toArray();
+      res.send(result);
+    })
+
+     //enrolled(paid) course api
+     app.get("/payments/enrolledCourses", async (req, res) =>{
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result);
+    })
 //payment related api
     // save cart information into database
     app.post("/cart", verifyJWT, verifyStudent, async(req, res)=>{
