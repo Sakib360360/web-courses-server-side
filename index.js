@@ -270,7 +270,7 @@ async function run() {
       res.send(result);
     });
 
-    
+
     // delete the user's cart from database
     app.delete("/cart/:id", verifyJWT, verifyStudent, async (req, res)=>{
       const id = req.params.id;
