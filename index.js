@@ -98,6 +98,7 @@ async function run() {
     app.post("/jwt", (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+      console.log(token);
       res.send(token);
     });
 
@@ -224,8 +225,7 @@ async function run() {
 
 
     // get all the users from
-    // TODO: add verifyJWT and verifyAdmin
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
       const result = await UsersCollection.find().toArray();
       res.send(result);
     });
@@ -265,49 +265,6 @@ async function run() {
     });
 
     // payment related api 
-<<<<<<< HEAD
-        //payment intent api
-        app.post("/create-payment-intent", async (req, res) => {
-          const { price } = req.body;
-    
-          const amount = parseInt(price * 100);
-          const paymentIntent = await stripe.paymentIntents.create({
-            amount: amount,
-            currency: "usd",
-            payment_method_types: ["card"],
-          });
-          res.send({
-            clientSecret: paymentIntent.client_secret,
-          });
-        });
-
-// payment and saving payment in database
-        app.post("/payments", async (req, res) => {
-          const payment = req.body;
-          console.log(payment);
-          const insertResult = await paymentCollection.insertOne(payment);    
-          const query = { _id: new ObjectId(payment.courseId) };
-          console.log(query);
-          //class and my class different
-          const queryCourse = { courseId: payment.courseId };
-          const deleteResult = await CartsCollection.deleteOne(queryCourse)
-          ;
-         const courseInfo = await CoursesCollection.findOne(query);
-         const newSeat = parseFloat(courseInfo?.availableSeats) - 1;
-         const newStudents = parseFloat(courseInfo?.students) +1;
-         const updateSeat = {
-                       $set:{ availableSeats: newSeat, 
-                              students: newStudents
-                      }               
-         }
-         //seat will be decreased and students increased
-         const updateCourseSeat = await CoursesCollection.updateOne(query, updateSeat);
-          res.send({ insertResult, deleteResult });
-        });
-
-           //payment history api
-    app.get("/payments/history", async (req, res) =>{
-=======
     //payment intent api
     app.post("/create-payment-intent", async (req, res) => {
       const { price } = req.body;
@@ -349,7 +306,6 @@ async function run() {
 
     //payment history api
     app.get("/payments/history", async (req, res) => {
->>>>>>> e05c8046c15225c287e4851334855626c50ef0db
       const email = req.query.email;
       const query = { email: email };
       /*   const result = await myClassCollection.find(query).toArray();
