@@ -247,7 +247,6 @@ async function run() {
       res.send(result);
     });
 
-<<<<<<< HEAD
     // payment related api 
         //payment intent api
         app.post("/create-payment-intent", async (req, res) => {
@@ -283,6 +282,7 @@ async function run() {
                               students: newStudents
                       }               
          }
+         //seat will be decreased and students increased
          const updateCourseSeat = await CoursesCollection.updateOne(query, updateSeat);
           res.send({ insertResult, deleteResult });
         });
@@ -307,8 +307,6 @@ async function run() {
 
 //payment related api
 
-=======
->>>>>>> 6b1805e63028f8c4465276ff0f015400456d2d38
 
     // save cart information into database
     app.post("/cart", verifyJWT, verifyStudent, async (req, res) => {
