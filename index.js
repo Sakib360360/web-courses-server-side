@@ -168,10 +168,10 @@ async function run() {
 
     // get course by id
     // TODO: add verifyJWT and verifyInstructor
-    app.get("/my-courses/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await CoursesCollection.findOne(query);
+    app.get("/my-courses/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { instructor_email: email };
+      const result = await CoursesCollection.find(query).toArray();
       res.send(result);
     });
 
