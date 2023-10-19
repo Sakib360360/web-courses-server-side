@@ -209,7 +209,7 @@ async function run() {
     });
 
 
-    // get all the users from database
+    // get all the users from
     app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
       const result = await UsersCollection.find().toArray();
       res.send(result);
