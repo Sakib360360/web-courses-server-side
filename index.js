@@ -247,6 +247,68 @@ async function run() {
       res.send(result);
     });
 
+<<<<<<< HEAD
+    // payment related api 
+        //payment intent api
+        app.post("/create-payment-intent", async (req, res) => {
+          const { price } = req.body;
+    
+          const amount = parseInt(price * 100);
+          const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: "usd",
+            payment_method_types: ["card"],
+          });
+          res.send({
+            clientSecret: paymentIntent.client_secret,
+          });
+        });
+
+// payment and saving payment in database
+        app.post("/payments", async (req, res) => {
+          const payment = req.body;
+          console.log(payment);
+          const insertResult = await paymentCollection.insertOne(payment);    
+          const query = { _id: new ObjectId(payment.courseId) };
+          console.log(query);
+          //class and my class different
+          const queryCourse = { courseId: payment.courseId };
+          const deleteResult = await CartsCollection.deleteOne(queryCourse)
+          ;
+         const courseInfo = await CoursesCollection.findOne(query);
+         const newSeat = parseFloat(courseInfo?.availableSeats) - 1;
+         const newStudents = parseFloat(courseInfo?.students) +1;
+         const updateSeat = {
+                       $set:{ availableSeats: newSeat, 
+                              students: newStudents
+                      }               
+         }
+         const updateCourseSeat = await CoursesCollection.updateOne(query, updateSeat);
+          res.send({ insertResult, deleteResult });
+        });
+
+           //payment history api
+    app.get("/payments/history", async (req, res) =>{
+      const email = req.query.email;
+      const query = { email: email };
+    /*   const result = await myClassCollection.find(query).toArray();
+      res.send(result); eta ki cart collection theke ashbe i mean selected class gula ki cart collection e thakbe tahole ekhane database hobe cart collection*/
+      const result = await paymentCollection.find(query).sort({ _id: -1 }).toArray();
+      res.send(result);
+    })
+     
+     //enrolled(paid) course api
+     app.get("/payments/enrolledCourses", async (req, res) =>{
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result);
+    })
+
+//payment related api
+
+=======
+>>>>>>> 6b1805e63028f8c4465276ff0f015400456d2d38
 
     // save cart information into database
     app.post("/cart", verifyJWT, verifyStudent, async (req, res) => {
