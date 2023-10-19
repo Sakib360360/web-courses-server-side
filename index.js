@@ -203,7 +203,7 @@ async function run() {
     // get all the instructors
     app.get("/instructors", async (req, res) => {
       const limit = parseInt(req.query.limit);
-      const query = { role: "instructor" };
+      const query = {};
       const result = await InstructorsCollection.find(query).limit(limit).toArray();
       res.send(result);
     });
